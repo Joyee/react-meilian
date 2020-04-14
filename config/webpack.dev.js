@@ -15,22 +15,13 @@ module.exports = smart(webpackCommon, {
         loader: 'file-loader'
       },
       {
-        test: /\.css$/,
+        test: /\.(le|c)ss$/,
         loader: [
           'style-loader',
           'css-loader',
-          'postcss-loader'
+          'postcss-loader',
+          'less-loader'
         ]
-      },
-      {
-        test: /\.less$/,
-        use: [{
-          loader: 'style-loader' // creates style nodes from JS strings
-        }, {
-          loader: 'css-loader' // translates CSS into CommonJS
-        }, {
-          loader: 'less-loader' // compiles Less to CSS
-        }]
       }
     ]
   },
@@ -43,6 +34,16 @@ module.exports = smart(webpackCommon, {
       filename: 'index.html'
     })
   ],
+  resolve: {
+    alias: {
+      '@src': path.resolve('src'),
+      '@views': path.resolve('src/views'),
+      '@utils': path.resolve('src/utils'),
+      '@api': path.resolve('src/api'),
+      '@statics': path.resolve('src/statics'),
+      '@common': path.resolve('src/common')
+    }
+  },
   // devServer: {
   //   port: 8080,
   //   proccess: true, // 显示打包进度条
