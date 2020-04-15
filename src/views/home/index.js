@@ -1,74 +1,77 @@
 import React from 'react'
-import ReactDOM from 'react-dom'
 import './index.less'
 import {
   getFeedList
 } from './store/actionCreators'
 import FeedItem from './FeedItem'
-import { PullToRefresh, ListView } from 'antd-mobile'
+import BScroll from 'better-scroll'
 
 let page = 1
 
 class Home extends React.Component {
   constructor(props) {
     super(props)
-    const list = new ListView.DataSource({
-      rowHasChanged: (row1, row2) => row1.value !== row2.value
-    })
+    // this.scrollRef = React.createRef()
     this.state = {
-      list,
+      list: [],
       refreshing: true,
       isLoading: true,
-      height: document.documentElement.clientHeight,
-      useBodyScroll: false,
+      isPullUpLoad: false,
     }
   }
   render () {
-    const { list } = this.state
-    const row = ({ value }) => {
-      return (
-        <FeedItem
-          key={value.post.post_id}
-          post={value.post}
-          user={value.user}
-        />
-      )
-    }
+    const { list, isLoading, isPullUpLoad } = this.state
+
     return (
-      <div className='home-wrapper' id='container'>
-        <ListView
-          dataSource={list}
-          renderRow={row}
-          ref={(el) => this.lv = el}
-          style={this.state.useBodyScroll ? {} : {
-            height: '100%'
-          }}
-          renderFooter={() => (<div style={{ padding: 30, textAlign: 'center', fontSize: '24px' }}>
-            {this.state.isLoading ? 'Loading...' : 'Loaded'}
-          </div>)}
-          useBodyScroll={this.state.useBodyScroll}
-          pullToRefresh={<PullToRefresh
-            refreshing={this.state.refreshing}
-            onRefresh={this.handleRefresh}
-          />}
-          onEndReached={this.handleLoadMore}
-        />
+      <div className='home-wrapper'>
+        {isLoading && <div className='loading'><img src='/src/statics/images/ml_home_loading.gif' alt='加载中'/></div>}
+        <div className='scroll' id='scroll' ref={this.scrollRef}>
+          <ul>
+            {
+              list.map((item) => {
+                return <FeedItem
+                  key={item.post.post_id}
+                  post={item.post}
+                  user={item.user}
+                  handleLike={this.handleLike}
+                />
+              })
+            }
+            { isPullUpLoad && <li className='load-more'>加载更多</li>}
+          </ul>
+        </div>
       </div>
     )
   }
 
+  componentWillMount () {
+
+  }
+
   componentDidMount () {
-    this.hei = this.state.height - ReactDOM.findDOMNode(this.lv).offsetTop
-    this.listData = []
     this.loadData()
   }
 
   componentDidUpdate () {
-    if (this.state.useBodyScroll) {
-      document.body.style.overflow = 'auto';
-    } else {
-      document.body.style.overflow = 'hidden';
-    }
+  }
+
+  _initScroll () {
+    this.scroll = new BScroll(document.querySelector('#scroll'), {
+      click: true,
+      pullDownRefresh: {
+        threshold: 50,
+        stop: 20
+      },
+      pullUpLoad: {
+        threshold: 50
+      }
+    })
+    this._initEvents()
+  }
+
+  _initEvents () {
+    this.scroll.on('pullingDown', this.onPullDownRefresh)
+    this.scroll.on('pullingUp', this.handleLoadMore)
   }
 
   async loadData () {
@@ -80,31 +83,77 @@ class Home extends React.Component {
     })
     if (result.status === 200) {
       if (result.data.Code === 0) {
-        const list = result.data.Data.filter(item => item.card_type === 1)
-        this.listData = [...this.listData, ...list]
+        const list = this._formatData(result.data.Data)
         this.setState({
-          list: this.state.list.cloneWithRows(this.listData),
-          refreshing: false,
-          height: this.hei,
+          list: [...this.state.list, ...list],
           isLoading: false
+        }, () => {
+          if (!this.scroll) {
+            this._initScroll()
+          } else {
+            this.scroll.refresh()
+            this.scroll.finishPullUp()
+          }
         })
       }
     }
   }
 
-  handleRefresh = () => {
+  _formatData (data) {
+    data = data.filter(item => item.card_type === 1).map((item) => {
+      return {...item.value}
+    })
+    return data
+  }
+
+  onPullDownRefresh = async (pos) => {
     page = 1
     this.setState({
       refreshing: true,
       isLoading: true
     })
-    this.loadData()
+
+    console.log(`Now position is x: ${pos}, y: ${pos}`)
+    const result = await getFeedList({
+      page: 1,
+      is_first_run: 1,
+      last_play_quantity: 0,
+      square_id: -1
+    })
+    if (result.status === 200) {
+      if (result.data.Code === 0) {
+        const list = this._formatData(result.data.Data)
+        this.setState({
+          list,
+          isLoading: false
+        }, () => {
+          this.scroll.refresh()
+          this.scroll.finishPullDown()
+        })
+      }
+    }
   }
 
   handleLoadMore = () => {
     page++
-    this.setState({ isLoading: true })
-    this.loadData()
+    this.setState({
+      isPullUpLoad: true
+    }, () => {
+      this.loadData()
+    })
+  }
+
+  /**
+   * 点赞
+   */
+  handleLike = (post_id) => {
+    let data = [...this.state.list]
+    data = data.map((item) => {
+      return item.post.post_id === post_id ? { ...item, post: {...item.post, is_clicked_like: !item.post.is_clicked_like}} : item
+    })
+    this.setState({
+      list: data
+    })
   }
 }
 
