@@ -1,9 +1,9 @@
 import React from 'react'
 import './style.less'
 import { Link } from 'react-router-dom'
-import homeICON from '../../statics/images/home_icon@2x.png'
-import albumICON from '../../statics/images/album_icon@2x.png'
-import userICON from '../../statics/images/user_icon@2x.png'
+import homeICON from '../../statics/images/icon_home@2x.png'
+import albumICON from '../../statics/images/icon_album@2x.png'
+import userICON from '../../statics/images/icon_user@2x.png'
 
 function Tabbar() {
   return (

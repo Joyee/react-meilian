@@ -2,7 +2,7 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import './style.less'
 
-import backICON from '../../statics/images/return_icon@2x.png'
+import backICON from '../../statics/images/icon_return@2x.png'
 
 function Navigation (props) {
   const { isBlack, avatar, name, handleBack } = props
