@@ -1,4 +1,5 @@
 import React from 'react'
+import { Link } from 'react-router-dom'
 import './style.less'
 
 import { formateSeconds } from '@utils/util'
@@ -8,11 +9,11 @@ import unlikeICON from '@statics/images/like_icon@2x.png'
 import likeICON from '@statics/images/unlike_icon@2x.png'
 import commentICON from '@statics/images/comment_icon@2x.png'
 
-class FeedItem extends React.Component {
-  render () {
-    const { post, user, handleLike } = this.props
-    return (
-      <li className='feed-item'>
+const FeedItem = (props) => {
+  const { post, user, handleLike } = props
+  return (
+    <li className='feed-item'>
+      <Link to={`/detail/${post.post_id}`}>
         <div className='item-top'
           style={
             {
@@ -42,9 +43,9 @@ class FeedItem extends React.Component {
             <img className='share-icon' src={shareICON} alt='分享' />
           </li>
         </ul>
-      </li>
-    )
-  }
+      </Link>
+    </li>
+  )
 }
 
 export default FeedItem
