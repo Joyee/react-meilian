@@ -3,6 +3,7 @@ import './index.less'
 import Tabbar from '../../common/Tabbar'
 import Navigation from '../../common/Navigation'
 import ModelItem from './ModelItem'
+import Preview from './Preview'
 
 import { actionCreators } from './store'
 import BScroll from 'better-scroll'
@@ -18,10 +19,12 @@ class Album extends React.Component {
       isLoading: true,
       isPullUpLoad: false,
       loaded: false,
+      current_template: null,
+      showPreview: false,
     }
   }
   render () {
-    const { list, isLoading, isPullUpLoad, loaded } = this.state
+    const { list, isLoading, isPullUpLoad, loaded, showPreview, current_template } = this.state
     const ModelList = () => {
       return (
         <div className='scroll' id='scroll'>
@@ -35,6 +38,7 @@ class Album extends React.Component {
                 return <ModelItem
                   key={item.template_id}
                   template={item}
+                  handlePreview={() => this.handlePreviewModel(item.template_id)}
                 />
               })
             }
@@ -52,6 +56,7 @@ class Album extends React.Component {
           {isLoading && <div className='loading'><img src='/src/statics/images/ml_home_loading.gif' alt='加载中' /></div>}
           {ModelList()}
         </div>
+        {showPreview && <Preview template={current_template} onClose={this.handleClosePreview}/>}
       </div>
     )
   }
@@ -81,7 +86,8 @@ class Album extends React.Component {
     this.scroll = new BScroll(document.querySelector('#scroll'), {
       pullUpLoad: {
         threshold: 50
-      }
+      },
+      click: true
     })
     this._initEvents()
   }
@@ -101,6 +107,24 @@ class Album extends React.Component {
       return
     }
     this._loadData()
+  }
+
+  handlePreviewModel = (template_id) => {
+    console.log(template_id)
+    const item = this.state.list.find((item) => {
+      return item.template_id === template_id
+    })
+    this.setState({
+      current_template: item,
+      showPreview: true
+    })
+  }
+
+  handleClosePreview = () => {
+    this.setState({
+      showPreview: false,
+      current_template: null
+    })
   }
 }
 
