@@ -11,7 +11,7 @@ function Navigation (props) {
       className='top-bar-wrapper'
       style={{ backgroundColor: isBlack ? '#000000' : '#D43D3D' }}
     >
-      {!isBlack && <div className='title'>特效相册</div>}
+      {!isBlack && <div className='top-bar-title'>特效相册</div>}
       {isBlack && <div className='top'>
         <img className='back-icon' src={backICON} alt='返回' onClick={handleBack} />
         <img className='avatar' src={avatar} alt='头像' />

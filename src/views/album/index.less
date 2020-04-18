@@ -1,4 +1,70 @@
-.container {
+.album-container {
+  font-size: 24px;
+  position: fixed;
   width: 100%;
-  height: 100%;
+  bottom: 96px;
+  top: 88px;
+
+  .product-btn {
+    width: 100%;
+    height: 320px;
+    background-color: #F4F6F8;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    margin-bottom: 40px;
+    margin-top: 22px;
+
+    .add-img {
+      width: 96px;
+      height: 96px;
+    }
+
+    p {
+      text-align: center;
+      color: #F85959;
+      font-size: 40px;
+      margin-top: 24px;
+    }
+  }
+
+  .scroll {
+    height: 100%;
+    width: 100%;
+    padding: 0 30px;
+    box-sizing: border-box;
+
+    ul {
+      display: flex;
+      flex-wrap: wrap;
+    }
+  }
+
+  .loading {
+    width: 100%;
+    height: 120px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: 50px;
+    text-align: center;
+
+    img {
+      width: 120px;
+      height: 120px;
+    }
+  }
+
+  .load-more {
+    width: 100%;
+    font-size: 28px;
+    height: 80px;
+    line-height: 80px;
+    color: #666;
+    text-align: center;
+  }
 }

@@ -1,5 +1,5 @@
 import React from 'react'
-import './index.less'
+import './style.less'
 import {
   getFeedList
 } from './store/actionCreators'
@@ -68,7 +68,7 @@ class Home extends React.Component {
   //   return false // 不重复渲染
   // }
 
-  _initScroll () {
+  _initScroll = () => {
     this.scroll = new BScroll(document.querySelector('#scroll'), {
       click: true,
       pullDownRefresh: {
@@ -94,23 +94,18 @@ class Home extends React.Component {
       last_play_quantity: 0,
       square_id: -1
     })
-    if (result.status === 200) {
-      if (result.data.Code === 0) {
-        const list = this._formatData(result.data.Data)
-        this.setState({
-          list: page === 1 ? list : [...this.state.list, ...list],
-          isLoading: false
-        }, () => {
-          if (!this.scroll) {
-            this._initScroll()
-          } else {
-            this.scroll.refresh()
-            this.scroll.finishPullUp()
-            this.scroll.finishPullDown()
-          }
-        })
+    this.setState({
+      list: page === 1 ? result : [...this.state.list, ...result],
+      isLoading: false
+    }, () => {
+      if (!this.scroll) {
+        this._initScroll()
+      } else {
+        this.scroll.refresh()
+        this.scroll.finishPullUp()
+        this.scroll.finishPullDown()
       }
-    }
+    })
   }
 
   _formatData (data) {
