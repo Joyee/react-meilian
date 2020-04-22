@@ -1,12 +1,12 @@
 import React from 'react'
 import './style.less'
-import {
-  getFeedList
-} from './store/actionCreators'
+import { connect } from 'react-redux'
+import { List } from 'immutable'
 import FeedItem from './FeedItem'
 import BScroll from 'better-scroll'
 import Tabbar from '../../common/Tabbar'
 import Navigation from '../../common/Navigation'
+import { actionCreators } from './store'
 
 let page = 1
 
@@ -15,14 +15,15 @@ class Home extends React.Component {
     super(props)
     // this.scrollRef = React.createRef()
     this.state = {
-      list: [],
+      feedList: [],
       refreshing: true,
       isLoading: true,
       isPullUpLoad: false,
     }
   }
   render () {
-    const { list, isLoading, isPullUpLoad } = this.state
+    const { isLoading, isPullUpLoad, feedList } = this.state
+    // const { feedList } = this.props
 
     return (
       <div className='home-wrapper'>
@@ -33,7 +34,7 @@ class Home extends React.Component {
           <div className='scroll' id='scroll' ref={this.scrollRef}>
             <ul>
               {
-                list.map((item) => {
+                feedList.map((item) => {
                   return <FeedItem
                     key={item.post.post_id}
                     post={item.post}
@@ -50,23 +51,26 @@ class Home extends React.Component {
     )
   }
 
-  componentWillMount () {
-
-  }
-
   componentDidMount () {
-    this.loadData()
+    if (this.props.list.size === 0) {
+      this.loadData()
+    } else {
+      this.setState({
+        feedList: this.props.list
+      })
+    }
+
+    if (!this.scroll) {
+      this._initScroll()
+    }
   }
 
   componentDidUpdate () {
   }
 
-  // shouldComponentUpdate (nextProps, nextState) {
-  //   if (nextState.list !== this.state.list) {
-  //     return true // 可以渲染
-  //   }
-  //   return false // 不重复渲染
-  // }
+  componentWillUnmount () {
+    this.props.handleSetFeedList(this.state.feedList)
+  }
 
   _initScroll = () => {
     this.scroll = new BScroll(document.querySelector('#scroll'), {
@@ -88,22 +92,18 @@ class Home extends React.Component {
   }
 
   async loadData () {
-    const result = await getFeedList({
+    const result = await actionCreators.getFeedList({
       page,
       is_first_run: 1,
       last_play_quantity: 0,
       square_id: -1
     })
     this.setState({
-      list: page === 1 ? result : [...this.state.list, ...result],
+      feedList: page === 1 ? result : [...this.state.feedList, ...result],
       isLoading: false
     }, () => {
-      if (!this.scroll) {
-        this._initScroll()
-      } else {
+      if (this.scroll) {
         this.scroll.refresh()
-        this.scroll.finishPullUp()
-        this.scroll.finishPullDown()
       }
     })
   }
@@ -115,7 +115,7 @@ class Home extends React.Component {
     return data
   }
 
-  onPullDownRefresh = async (pos) => {
+  onPullDownRefresh = async () => {
     console.log('下拉刷新')
     page = 1
     this.setState({
@@ -123,6 +123,7 @@ class Home extends React.Component {
       isLoading: true
     }, () => {
       this.loadData()
+      this.scroll.finishPullDown()
     })
   }
 
@@ -132,6 +133,7 @@ class Home extends React.Component {
       isPullUpLoad: true
     }, () => {
       this.loadData()
+      this.scroll.finishPullUp()
     })
   }
 
@@ -139,14 +141,27 @@ class Home extends React.Component {
    * 点赞
    */
   handleLike = (post_id) => {
-    let data = [...this.state.list]
+    let data = [...this.state.feedList]
     data = data.map((item) => {
       return item.post.post_id === post_id ? { ...item, post: { ...item.post, is_clicked_like: !item.post.is_clicked_like } } : item
     })
     this.setState({
-      list: data
+      feedList: data
     })
   }
 }
 
-export default Home
+const mapStateToProps = (state) => {
+  return {
+    list: state.getIn(['home', 'list'])
+  }
+}
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    handleSetFeedList (list) {
+      dispatch(actionCreators.setFeedList(list))
+    }
+  }
+}
+export default connect(mapStateToProps, mapDispatchToProps)(Home)

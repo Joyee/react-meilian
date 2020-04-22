@@ -1,0 +1,2 @@
+export const SET_FEED_LIST = 'home/SET_FEED_LIST'
+export const CHANGE_FEED_LIST_ITEM = 'home/CHANGE_FEED_LIST_ITEM'

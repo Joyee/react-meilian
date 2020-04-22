@@ -8,14 +8,14 @@ import shareICON from '@statics/images/icon_share@2x.png'
 import moreICON from '@statics/images/icon_more@2x.png'
 
 function PostContent (props) {
-  const { post } = props
+  const { post, onClickLike } = props
   return (
     <div className='post-content'>
       <div className='post-title'>{post.title}</div>
       {post.content && <div className='post-content'>{post.content}</div>}
       <div className='post-info'>
         <div className='count play-count'>{post.play_count}次播放</div>
-        <div className='count like-count'>
+        <div className='count like-count' onClick={onClickLike}>
           <img src={post.is_clicked_like ? likeICON : unlikeICON} className='icon' alt='喜欢' />
           <span>{post.like_count}</span>
         </div>

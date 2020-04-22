@@ -2,6 +2,7 @@ import React from 'react';
 import {
   // BrowserRouter,
   HashRouter as Router,
+  Switch,
   Route
 } from 'react-router-dom'
 import './App.less';
@@ -15,13 +16,15 @@ function App () {
   return (
     <Router>
       <div className="App">
-        <Route path='/' exact component={Home}></Route>
-        <Route path='/album' component={Album}></Route>
-        <Route path='/my' component={My}></Route>
-        {/* <Route path='/detail/:postId' component={Detail}></Route> */}
-        <React.Suspense fallback={<div>loading</div>}>
-          <Route path='/detail/:postId' component={Detail}></Route>
-        </React.Suspense>
+        <Switch>
+          <Route path='/' exact component={Home}></Route>
+          <Route path='/album' component={Album}></Route>
+          <Route path='/my' component={My}></Route>
+          {/* <Route path='/detail/:postId' component={Detail}></Route> */}
+          <React.Suspense fallback={<div>loading</div>}>
+            <Route path='/detail/:postId' component={Detail}></Route>
+          </React.Suspense>
+        </Switch>
       </div>
     </Router>
   );

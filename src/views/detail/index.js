@@ -1,9 +1,11 @@
 import React from 'react'
 import './style.less'
-
+import { connect } from 'react-redux'
 import {
   actionCreators,
 } from './store'
+
+import { actionCreators as homeActionCreators } from '../home/store'
 
 import Navigation from '../../common/Navigation'
 import PostContent from './PostContent'
@@ -39,7 +41,10 @@ class Detail extends React.Component {
             <div className='video-wrapper' style={{ height: screenH }}>
               {post.play_url && <video controls className='video' ref={(el) => this.videoRef = el} />}
             </div>
-            <PostContent post={post} />
+            <PostContent
+              post={post}
+              onClickLike={this.props.handleClickLike.bind(this, post.post_id, 'is_clicked_like', !post.is_clicked_like)}
+            />
             {hotCommentList.length && <HotComment
               commentList={hotCommentList}
               comment_count={post.comment_count}
@@ -54,11 +59,11 @@ class Detail extends React.Component {
 
   async componentDidMount () {
     const { postId } = this.props.match.params
-    console.log(postId)
+    // console.log(postId)
     const dataRes = await actionCreators.getPostDetail(postId)
     let commentRes = await actionCreators.getCommentList({ post_id: postId })
     const recommendRes = await actionCreators.getRecommendList(page)
-    console.log(recommendRes)
+    // console.log(recommendRes)
     commentRes = this._formatComment(commentRes)
 
     this.setState({
@@ -103,5 +108,12 @@ class Detail extends React.Component {
   }
 }
 
+const mapDispatchTopProps = (dispatch) => {
+  return {
+    handleClickLike (post_id, key, value) {
+      dispatch(homeActionCreators.changeFeedItem(post_id, key, value))
+    }
+  }
+}
 
-export default Detail
+export default connect(null, mapDispatchTopProps)(Detail)
